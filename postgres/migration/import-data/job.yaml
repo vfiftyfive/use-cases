@@ -14,8 +14,8 @@ spec:
         command: ["/bin/sh"]
         args:
         - -c
-        - "psql -h $DST -U $USER -c \"CREATE DATABASE $DB\";
-          pg_dump -h $SRC -U $USER --format c $DB | pg_restore --verbose -h $DST -U $USER --format c --dbname $DB"
+        - "createdb -h $DST -U $USER $DB \
+           && pg_dump -h $SRC -U $USER --format c $DB | pg_restore --verbose -h $DST -U $USER --format c --dbname $DB"
         envFrom:
         - configMapRef:
             name: postgres-migration

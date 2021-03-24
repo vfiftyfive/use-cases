@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pg
+  namespace: postgres-external
   labels:
     app: postgres
 spec:
@@ -16,11 +17,12 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: pg
+  namespace: postgres-external
   labels:
     app: postgres
 subsets:
 - addresses:
-  - ip: 178.79.129.52
+  - ip: 109.74.200.33
   ports:
   - name: postgres
     port: 5432
