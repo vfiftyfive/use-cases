@@ -68,8 +68,7 @@ node_details=$(kubectl -n ${STOS_NS} exec cli -- storageos describe nodes -ojson
 local_node_name=$(echo $node_details | jq -r '.[0]')
 local_node_id=$(echo $node_details | jq -r '.[1]')
 
-remote_node_name=$(echo $node_details | jq -r '.[2]')
-remote_node_name=$(echo $node_details | jq -r '.[3]')
+remote_node_id=$(echo $node_details | jq -r '.[3]')
 
 pvc_prefix="$RANDOM"
 
@@ -88,7 +87,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-${pvc_prefix}
   labels:
-    storageos.com/hint.master: "${remote_node_name}"
+    storageos.com/hint.master: "${remote_node_id}"
     storageos.com/replicas: "1"
 spec:
   storageClassName: fast
