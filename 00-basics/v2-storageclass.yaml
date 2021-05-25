@@ -9,7 +9,6 @@ metadata:
 provisioner: csi.storageos.com # CSI Driver
 allowVolumeExpansion: true
 parameters:
-  pool: default
   csi.storage.k8s.io/fstype: ext4
   # Change the NameSpace below if StorageOS doesn't run in kube-system
   csi.storage.k8s.io/controller-expand-secret-name: csi-controller-expand-secret

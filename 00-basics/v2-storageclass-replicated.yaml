@@ -7,7 +7,6 @@ metadata:
 provisioner: csi.storageos.com 
 allowVolumeExpansion: true
 parameters:
-  pool: default
   csi.storage.k8s.io/fstype: ext4
   storageos.com/replicas: "1" # Labels allowed only when using CSI
   # Change the NameSpace below if StorageOS doesn't run in kube-system
