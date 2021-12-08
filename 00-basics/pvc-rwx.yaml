@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-rwx
 spec:
-  storageClassName: fast
+  storageClassName: storageos
   accessModes:
     - ReadWriteMany
   resources:

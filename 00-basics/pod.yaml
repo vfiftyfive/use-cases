@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: debian
-      image: debian:9-slim
+      image: debian:stable-slim
       command: ["/bin/sleep"]
       args: [ "3600" ]
       volumeMounts:
