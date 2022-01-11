@@ -1,5 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
+
+job="local-volume-with-replica-fio"
+source ../lib/sh/functions.sh
 
 #
 # The following script provisions a volume with a replica,
@@ -15,78 +18,33 @@ set -euo pipefail
 #  - jq in the PATH
 #
 
-# Define some colours for later
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
-
 echo -e "${GREEN}Scenario: Local Volume with a replica${NC}"
 echo
 
-# Checking if jq is in the PATH
-if ! command -v jq &> /dev/null
-then
-    echo -e "${RED}jq could not be found. Please install jq and run the script again${NC}"
-    exit 1
-fi
+check_for_jq
 
 # Checking if StorageOS Cli is running as a pod, if not the script will deploy it
-CLI_VERSION="storageos/cli:v2.5.0"
-STOS_NS="kube-system"
-cli_pod=$(kubectl -n ${STOS_NS} get pod -lrun=cli --no-headers -ocustom-columns=_:.metadata.name)
-
-if [ "${cli_pod}" != "cli" ]
-then
-    echo -e "${RED}StorageOS CLI pod not found. Deploying now${NC}"
-
-    kubectl -n ${STOS_NS} run \
-    --image ${CLI_VERSION} \
-    --restart=Never                          \
-    --env STORAGEOS_ENDPOINTS=storageos:5705 \
-    --env STORAGEOS_USERNAME=$(kubectl -n ${STOS_NS} get secrets init-secret -oyaml | awk '/username:/ {print $2}' |  base64 --decode) \
-    --env STORAGEOS_PASSWORD=$(kubectl -n ${STOS_NS} get secrets init-secret -oyaml | awk '/password:/ {print $2}' |  base64 --decode) \
-    --command cli                            \
-    -- /bin/sh -c "while true; do sleep 999999; done"
-fi
-
-sleep 5
-SECONDS=0
-TIMEOUT=30
-while ! kubectl -n ${STOS_NS} get pod cli -otemplate="{{ .status.phase }}" 2>/dev/null| grep -q Running; do
-  pod_status=$(kubectl -n ${STOS_NS} get pod cli -otemplate="{{ .status.phase }}" 2>/dev/null)
-  if [ $SECONDS -gt $TIMEOUT ]; then
-      echo "The pod cli didn't start after $TIMEOUT seconds" 1>&2
-      echo -e "${RED}Pod: cli, is in ${pod_status}${NC} state."
-      exit 1
-  fi
-  sleep 5
-done
+cli=$(get_cli_pod)
+echo -e "${GREEN}CLI pod: ${cli}"
 
 # Get the node name and id where the volume will get provisioned and attached on
 # Using the StorageOS cli is guarantee that the node is running StorageOS
-node_details=$(kubectl -n ${STOS_NS} exec cli -- storageos describe nodes -ojson | jq -r '[.[0].labels."kubernetes.io/hostname",.[0].id]')
-local_node_name=$(echo $node_details | jq -r '.[0]')
-local_node_id=$(echo $node_details | jq -r '.[1]')
+nodes_and_ids=$((get_storageos_nodes))
+node_name=${nodes_and_ids[0]#*~}
+node_id=${nodes_and_ids[0]%~*}
 pvc_prefix="$RANDOM"
 
-# Create a temporary dir where the local-volume-with-replica-fio.yaml will get created in
-manifest_path=$(mktemp -d -t local-volumes-fio-XXXX)
-
-fio_job="local-volume-with-replica-fio"
-manifest="${manifest_path}/${fio_job}.yaml"
-logs_path=$(mktemp -d -t fio-logs-XXXX)
-
 # Create a 25 Gib StorageOS volume with one replica manifest
-cat <<END >> $manifest
+cat <<END >> "$manifest"
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-${pvc_prefix}-1
   labels:
-    storageos.com/hint.master: "${local_node_id}"
+    storageos.com/hint.master: "${node_id}"
     storageos.com/replicas: "1"
 spec:
-  storageClassName: fast
+  storageClassName: storageos
   accessModes:
     - ReadWriteOnce
   resources:
@@ -96,18 +54,18 @@ spec:
 END
 
 # Create batch job for the FIO tests manifest
-cat <<END >> $manifest
+cat <<END >> "$manifest"
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "${fio_job}"
+  name: "${job}"
 spec:
   template:
     spec:
       nodeSelector:
-        "kubernetes.io/hostname": ${local_node_name}
+        "kubernetes.io/hostname": ${node_name}
       containers:
-      - name: "${fio_job}"
+      - name: "${job}"
         image: storageos/dbench:latest
         imagePullPolicy: Always
         env:
@@ -124,42 +82,4 @@ spec:
   backoffLimit: 4
 END
 
-# Deploying FIO Job
-echo -e "${GREEN}Deploying the ${fio_job} Job${NC}"
-# Create Job and PVC
-kubectl create -f ${manifest}
-
-echo -e "${GREEN}FIO tests started.${NC}"
-echo -e "${GREEN}Waiting up to 7 minutes for the ${fio_job} Job to finish.${NC}"
-echo
-
-sleep 5
-pod=$(kubectl get pod -l job-name=${fio_job} --no-headers -ocustom-columns=_:.metadata.name 2>/dev/null || :)
-SECONDS=0
-TIMEOUT=420
-while ! kubectl get pod ${pod} -otemplate="{{ .status.phase }}" 2>/dev/null| grep -q Succeeded; do
-  pod_status=$(kubectl get pod ${pod} -otemplate="{{ .status.phase }}" 2>/dev/null)
-  if [ $SECONDS -gt $TIMEOUT ]; then
-      echo "The pod $pod didn't succeed after $TIMEOUT seconds" 1>&2
-      echo -e "${GREEN}Pod: ${pod}, is in ${pod_status}${NC} state."
-      # Cleanup if job fails for any reason
-      kubectl delete -f ${manifest}
-      exit 1
-  fi
-  sleep 10
-done
-
-echo -e "${GREEN}${fio_job} Job finished successfully.${NC}"
-echo
-
-#  Gathering Logs and  printing out StorageOS performance
-kubectl logs -f jobs/${fio_job} > ${logs_path}/${fio_job}.log
-tail -n 7 ${logs_path}/${fio_job}.log
-echo
-echo -e "${GREEN}Removing ${fio_job} Job.${NC}"
-# Deleting the Job to clean up the cluster
-kubectl delete -f ${manifest}
-echo
-
-echo -e "${GREEN}Cleaning up manifests${NC}"
-rm -rf "${manifest_path}" "${logs_path}"
+run_or_die
