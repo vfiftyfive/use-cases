@@ -29,7 +29,7 @@ echo -e "${GREEN}CLI pod: ${cli}"
 
 # Get the node name and id where the volume will get provisioned and attached on
 # Using the StorageOS cli is guarantee that the node is running StorageOS
-nodes_and_ids=$((get_storageos_nodes))
+nodes_and_ids=($(get_storageos_nodes))
 node_name=${nodes_and_ids[0]#*~}
 node_id=${nodes_and_ids[0]%~*}
 pvc_prefix="$RANDOM"
