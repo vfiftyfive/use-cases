@@ -100,7 +100,7 @@ spec:
       spec:
         accessModes:
           - "ReadWriteOnce"
-        storageClassName: "fast"
+         storageClassName: "storageos" # StorageOS storageClass
         resources:
           requests:
             storage: "5Gi"

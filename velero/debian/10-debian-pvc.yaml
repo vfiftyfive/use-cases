@@ -4,7 +4,7 @@ metadata:
  name: pvc-1
  namespace: debian
 spec:
- storageClassName: "fast"
+  storageClassName: "storageos" # StorageOS storageClass
  accessModes:
  - ReadWriteOnce
  resources:

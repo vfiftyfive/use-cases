@@ -51,7 +51,7 @@ spec:
         env: prod
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: "fast" # StorageOS storageClass
+       storageClassName: "storageos" # StorageOS storageClass
       resources:
         requests:
           storage: 50Gi
