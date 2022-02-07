@@ -52,7 +52,7 @@ spec:
       name: data
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: "fast" # StorageOS storageClass 
+       storageClassName: "storageos" # StorageOS storageClass
       resources:
         requests:
           storage: 5Gi
@@ -60,7 +60,7 @@ spec:
       name: backups
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: "fast" # StorageOS storageClass 
+       storageClassName: "storageos" # StorageOS storageClass
       resources:
         requests:
           storage: 25Gi
