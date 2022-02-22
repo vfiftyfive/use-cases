@@ -16,7 +16,7 @@ metadata:
   name: ondat-encrypted
 parameters:
   storageos.com/encryption: "true"
-  storageos.com/replicas: 1
+  storageos.com/replicas: "1"
   csi.storage.k8s.io/fstype: xfs
   csi.storage.k8s.io/secret-name: storageos-api
   csi.storage.k8s.io/secret-namespace: storageos
