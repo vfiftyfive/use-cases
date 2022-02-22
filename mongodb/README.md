@@ -13,7 +13,7 @@ kind: StorageClass
 metadata:
   labels:
     app: storageos
-  name: ondat-encrypted
+  name: ondat-replicated
 parameters:
   storageos.com/encryption: "true"
   storageos.com/replicas: "1"
@@ -177,12 +177,12 @@ kubectl get pvc
 Result:
 ```
 NAME                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
-data-volume-mongodb-0   Bound    pvc-85179a6f-44d2-49c6-8b11-d96bd91009b2   1Gi        RWO            ondat-encrypted   11m
-data-volume-mongodb-1   Bound    pvc-f70ac39b-b74f-4b2e-b47c-9b49e14ae25b   1Gi        RWO            ondat-encrypted   10m
-data-volume-mongodb-2   Bound    pvc-3ee3c186-a7a7-4035-893f-e66607e73c2e   1Gi        RWO            ondat-encrypted   9m46s
-logs-volume-mongodb-0   Bound    pvc-fabbdce2-9b42-4e4f-a719-ee18e56c1195   1Gi        RWO            ondat-encrypted   11m
-logs-volume-mongodb-1   Bound    pvc-afbb7b28-a8f3-4238-966f-76b2a3ebcf9c   1Gi        RWO            ondat-encrypted   10m
-logs-volume-mongodb-2   Bound    pvc-723f1945-5c99-441d-a8a3-f43cc6d0c668   1Gi        RWO            ondat-encrypted   9m46s
+data-volume-mongodb-0   Bound    pvc-85179a6f-44d2-49c6-8b11-d96bd91009b2   1Gi        RWO            ondat-replicated   11m
+data-volume-mongodb-1   Bound    pvc-f70ac39b-b74f-4b2e-b47c-9b49e14ae25b   1Gi        RWO            ondat-replicated   10m
+data-volume-mongodb-2   Bound    pvc-3ee3c186-a7a7-4035-893f-e66607e73c2e   1Gi        RWO            ondat-replicated   9m46s
+logs-volume-mongodb-0   Bound    pvc-fabbdce2-9b42-4e4f-a719-ee18e56c1195   1Gi        RWO            ondat-replicated   11m
+logs-volume-mongodb-1   Bound    pvc-afbb7b28-a8f3-4238-966f-76b2a3ebcf9c   1Gi        RWO            ondat-replicated   10m
+logs-volume-mongodb-2   Bound    pvc-723f1945-5c99-441d-a8a3-f43cc6d0c668   1Gi        RWO            ondat-replicated   9m46s
 ```
 
 In the example above, you can see that `mongodb-0` data volume PVC ID is ending with `9b2`. If you check this ID in the Ondat volumes list, you can also find this volume ending with `9b2`. This information allows you to identify the node where the data volume is attached to. In this example, the node is `worker3` (use the column `ATTACHED ON`).
