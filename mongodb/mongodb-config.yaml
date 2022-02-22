@@ -1,0 +1,50 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: mongodb
+spec:
+  members: 3
+  security:
+    authentication:
+      modes:
+      - SCRAM
+  statefulSet:
+    spec:
+      selector: {}
+      serviceName: mongodb
+      volumeClaimTemplates:
+      - metadata:
+          name: data-volume
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+          storageClassName: ondat-replicated
+      - metadata:
+          name: logs-volume
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+          storageClassName: ondat-replicated
+  type: ReplicaSet
+  users:
+  - db: admin
+    name: admin
+    passwordSecretRef:
+      name: admin-password-df8t2cdf9f
+    roles:
+    - db: admin
+      name: clusterAdmin
+    - db: admin
+      name: userAdminAnyDatabase
+    - db: admin
+      name: dbAdminAnyDatabase
+    - db: admin
+      name: readWriteAnyDatabase
+    scramCredentialsSecretName: admin
+  version: 5.0.5
