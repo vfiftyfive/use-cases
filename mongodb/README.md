@@ -59,7 +59,7 @@ kubectl apply -f manager.yaml -n mongo-operator
 
 Check the Operator has correctly been deployed and wait for it to be running:
 ```
-watch kubectl get pods -n mongo-operator
+kubectl get pods -n mongo-operator -w
 ```
 Result:
 ```
