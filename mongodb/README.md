@@ -76,7 +76,7 @@ Finally, deploy the MongoDB cluster:
 kubectl apply -f mongodb-config.yaml
 ```
 
-Check that the cluster is deploying:
+Check that the cluster is running:
 ```
 kubectl get pods -w
 ```
