@@ -86,7 +86,7 @@ Every 2.0s: kubectl get pods
 NAME        READY   STATUS    RESTARTS   AGE
 mongodb-0   2/2     Running   0          3m29s
 mongodb-1   2/2     Running   0          2m25s
-mongodb-2   1/2     Running   0          61s
+mongodb-2   2/2     Running   0          61s
 ```
 
 ## Create a New Database
