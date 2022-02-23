@@ -114,7 +114,7 @@ stateStr: 'PRIMARY'
 The following MongoDB commands must be run from the primary node. Replace the `Pod` ordinal number accordingly so you can create the database and populate the collection.
 
 ```
-kubectl exec -it mongodb-0 -- mongosh admin < /root/ondat/mongo.sh
+kubectl exec -it mongodb-0 -- mongosh admin < ./mongo.sh
 ```
 
 Result:
@@ -131,7 +131,7 @@ mongodb [direct: primary] shakespeare> {
 
 Let's query the database to check that the document has been correctly created.
 ```
-kubectl exec -it mongodb-0 -- mongosh admin < /root/ondat/checkmongo.sh
+kubectl exec -it mongodb-0 -- mongosh admin < ./checkmongo.sh
 ```
 
 Result:
