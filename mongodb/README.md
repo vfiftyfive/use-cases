@@ -152,46 +152,10 @@ mongodb [direct: primary] shakespeare> [
 All good! You have deployed a new database that contains a document. Now, Let's verify that the database is encrypted!
 
 ## Verify Volume Encryption
+
+Make sure the `storageos` CLI is installed on your workstation. You can refer to the [Ondat documentation](https://docs.ondat.io/docs/reference/cli) for more information.
 First, let's find the Ondat volumes associated with the MongoDB `Pods` by executing the following commands:
 ```
-# Be sure to change STORAGEOS_USERNAME and STORAGEOS_PASSWORD to match your configuration
-kubectl -n storageos create -f-<<END
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: storageos-cli
-  namespace: storageos
-  labels:
-    app: storageos
-    run: cli
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: storageos-cli
-      run: cli
-  template:
-    metadata:
-      labels:
-        app: storageos-cli
-        run: cli
-    spec:
-      containers:
-      - command:
-        - /bin/sh
-        - -c
-        - "while true; do sleep 3600; done"
-        env:
-        - name: STORAGEOS_ENDPOINTS
-          value: http://storageos:5705
-        - name: STORAGEOS_USERNAME
-          value: storageos
-        - name: STORAGEOS_PASSWORD
-          value: storageos
-        image: storageos/cli:v2.5.0
-        name: cli
-END
-POD=$(kubectl -n storageos get pod -ocustom-columns=_:.metadata.name --no-headers -lapp=storageos-cli)
  kubectl port-forward svc/storageos -n storageos 5705 &
  storageos get volumes
  ```
