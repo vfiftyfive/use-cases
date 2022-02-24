@@ -244,6 +244,6 @@ Now, let's verify if the data is encrypted when accessing the raw volume. This i
 
 Connect to the node where the Ondat volume is attached to (column `ATTACHED ON` above). In our case, this is node `worker3`. Run the following command:
 ```
-ssh root@worker3 strings /var/lib/storageos/data/dev1/vol.*.blob | grep rose
+ssh root@worker3 grep -aob 'rose' /var/lib/storageos/data/dev1/vol.*.blob
 ```
 The result should be empty. This validates that the volume is encrypted!
